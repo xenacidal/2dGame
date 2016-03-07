@@ -1,0 +1,13 @@
+#ifndef INC_MAP_H
+#define INC_MAP_H
+
+struct tile{
+  char type[15];
+  int usable;
+};
+
+typedef struct tile Tile;
+
+Tile** createMap(Tile **map, char *mapName);
+
+#endif
