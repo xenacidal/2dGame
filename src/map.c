@@ -30,5 +30,15 @@ MapData* createMap(char *mapName){
   return mData;
 }
 
+void destroyMap(MapData *mData) {
+  Tile** map = mData->map;
+  int i;
+  for(i = 0; i < mData->rows; i++){
+    free(map[i]);
+  }
+  free(map);
+  free(mData);
+}
+
    
     

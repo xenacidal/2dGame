@@ -18,4 +18,6 @@ typedef struct mapData MapData;
 
 MapData* createMap(char *mapName);
 
+void destroyMap(MapData *mData);
+
 #endif
