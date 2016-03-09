@@ -16,4 +16,6 @@ void drawInitialFrame(SDL_Renderer *ren, MapData *mData, Player *p);
 
 void drawMove(SDL_Renderer *ren, MapData *mData, Player *p, int dir);
 
+void drawTurn(SDL_Renderer *ren, Player *p, int dir, MapData *m);
+
 #endif

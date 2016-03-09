@@ -10,7 +10,7 @@ Player* loadPlayer(char *loadLocation) {
     return;
   } else {
     pData = (Player *)malloc(sizeof(Player));
-    fscanf(playerFile, "%s%d%d", pData->mapName, &pData->xcoor, &pData->ycoor);
+    fscanf(playerFile, "%s%d%d%d", pData->mapName, &pData->direction, &pData->xcoor, &pData->ycoor);
   }
   return pData;
 }

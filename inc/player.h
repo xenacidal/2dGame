@@ -3,6 +3,7 @@
 
 struct playerData{
   char mapName[25];
+  int direction;
   int xcoor;
   int ycoor;
 };
