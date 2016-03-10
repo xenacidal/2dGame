@@ -11,18 +11,17 @@ MapData* createMap(char *mapName){
       printf("failed to open file\n");
       return;
   } else{
-    int rows, cols, use;
-    char ty[15];
-    fscanf(mapFile, "%d%d", &rows, &cols);
     mData = (MapData *)malloc(sizeof(MapData));
-    mData->rows = rows;
-    mData->cols = cols;
-    map = (Tile**)malloc(rows * sizeof(Tile));
+    mData->tempx = -1;
+    mData->tempy = -1;
+    strncpy(mData->tempMap, "NULL", 25);
+    fscanf(mapFile, "%d%d%d%d%d%d%d%d%d%d", &mData->rows, &mData->cols, &mData->load4x, &mData->load4y, &mData->load5x, &mData->load5y, &mData->load6x, &mData->load6y, &mData->load7x, &mData->load7y);
+    map = (Tile**)malloc(mData->rows * sizeof(Tile));
     int i, j;
-    for(i = 0; i < rows; i++) {
-      map[i] = (Tile *)malloc (cols * sizeof(Tile));
-      for(j = 0; j < cols; j++) {
-	fscanf(mapFile, "%s%d", (map[i] + j)->type, &(map[i] + j)->usable);
+    for(i = 0; i < mData->rows; i++) {
+      map[i] = (Tile *)malloc (mData->cols * sizeof(Tile));
+      for(j = 0; j < mData->cols; j++) {
+	fscanf(mapFile, "%s%d%s", (map[i] + j)->type, &(map[i] + j)->usable, (map[i] + j)->change);
       }
     }
   }

@@ -86,7 +86,6 @@ void drawInitialFrame(SDL_Renderer *ren, MapData *mData, Player *p){
   //First clear the renderer
   SDL_RenderClear(ren);
   //Draw the texture
- 
   int pdirection = p->direction, px = p->xcoor, py = p->ycoor;
   Tile **map = mData->map;
   int r = mData->rows, c = mData->cols;
@@ -110,7 +109,7 @@ void drawInitialFrame(SDL_Renderer *ren, MapData *mData, Player *p){
       }
     }
   }
-
+  
   if(pdirection == 1){
     playerRect.x = spriteFrameW;
     playerRect.y = spriteFrameH * 3;
@@ -131,7 +130,7 @@ void drawInitialFrame(SDL_Renderer *ren, MapData *mData, Player *p){
   SDL_RenderPresent(ren);
 }
 
-void drawMove(SDL_Renderer *ren, MapData *mData, Player *p, int dir) {
+void drawMove(SDL_Renderer *ren, MapData *mData, Player *p, int dir, int sprint) {
   int px = p->xcoor, py = p->ycoor;
   Tile **map = mData->map;
   int r = mData->rows, c = mData->cols;
@@ -186,10 +185,14 @@ void drawMove(SDL_Renderer *ren, MapData *mData, Player *p, int dir) {
 	playerRect.x += spriteFrameW;
       }
     }
-  
+    
+    if(frames >= 48){
+      playerRect.x = spriteFrameW;
+    }
+    
     SDL_RenderCopy(ren, texs, &playerRect, &plrect);
   
-    walkcount++;
+    walkcount+=sprint;
     if(walkcount >= 10)
       walkcount = 1;
     SDL_RenderCopy(ren, texs, &playerRect, &plrect);
@@ -197,7 +200,7 @@ void drawMove(SDL_Renderer *ren, MapData *mData, Player *p, int dir) {
     SDL_RenderPresent(ren);
     //Take a quick break after all that hard work
     SDL_Delay(1);
-    frames++;
+    frames+=sprint;
   }
 }
 

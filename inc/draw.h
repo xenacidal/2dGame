@@ -14,7 +14,7 @@ void destoryFrame();
 
 void drawInitialFrame(SDL_Renderer *ren, MapData *mData, Player *p);
 
-void drawMove(SDL_Renderer *ren, MapData *mData, Player *p, int dir);
+void drawMove(SDL_Renderer *ren, MapData *mData, Player *p, int dir, int sprint);
 
 void drawTurn(SDL_Renderer *ren, Player *p, int dir, MapData *m);
 
