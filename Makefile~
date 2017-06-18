@@ -1,0 +1,10 @@
+all: bin/2dGame
+
+bin/EmailSpammer: bin/main.o bin/EmailData.o
+	gcc -I inc bin/main.o bin/EmailData.o -o bin/EmailSpammer
+
+bin/main.o: src/main.c inc/EmailData.h
+	gcc -I inc -c src/main.c -o bin/main.o
+
+bin/EmailData.o: src/EmailData.c inc/EmailData.h
+	gcc -I inc -c src/EmailData.c -o bin/EmailData.o

@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include "map.h"
+#include "npc.h"
 
 MapData* createMap(char *mapName){
   MapData *mData;
   Tile **map;
+  NPC **lNpcs;
   FILE *mapFile;
   if((mapFile = fopen(mapName, "r")) == NULL) {
       printf("failed to open file\n");
@@ -24,8 +26,17 @@ MapData* createMap(char *mapName){
 	fscanf(mapFile, "%s%d%s", (map[i] + j)->type, &(map[i] + j)->usable, (map[i] + j)->change);
       }
     }
+    fscanf(mapFile, "%d", &mData->numNpcs);
+    lNpcs= (NPC **)malloc(mData->numNpcs * sizeof(NPC));
+    char npcName[25];
+    
+    for(i = 0; i < mData->numNpcs; i++){
+      fscanf(mapFile, "%s", npcName);
+      lNpcs[i] = createNpc(npcName);
+    }
   }
   mData->map = map;
+  mData->listNpcs = lNpcs;
   return mData;
 }
 
@@ -34,6 +45,9 @@ void destroyMap(MapData *mData) {
   int i;
   for(i = 0; i < mData->rows; i++){
     free(map[i]);
+  }
+  for(i = 0; i <mData->numNpcs; i++){
+    free(mData->listNpcs[i]);
   }
   free(map);
   free(mData);

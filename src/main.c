@@ -5,6 +5,7 @@
 #include "draw.h"
 #include "map.h"
 #include "player.h"
+#include "npc.h"
 
 void initialize();
 void exitGame();
@@ -14,6 +15,7 @@ SDL_Window *win;
 SDL_Renderer *ren;
 Player *p1;
 MapData *map1;
+int width, height;
 
 int main(int argc, char* argv[]){
   initialize();
@@ -23,11 +25,13 @@ int main(int argc, char* argv[]){
 }
 
 void initialize(){
-  SDL_Init(SDL_INIT_VIDEO);
+  SDL_Init(SDL_INIT_EVERYTHING);
   IMG_Init(IMG_INIT_PNG);
-  win = SDL_CreateWindow("2dGame", 100, 100, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+  width = 850;
+  height = 650;
+  win = SDL_CreateWindow("2dGame", 100, 100, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
   ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-  initializeFrame(ren);
+  initializeFrame(ren, win);
   p1 = loadPlayer("../data/player1");
   map1 = createMap(p1->mapName);
   drawInitialFrame(ren, map1, p1);
@@ -52,22 +56,26 @@ void handleInputs(){
   const Uint8 *state;
 
   while(1){
-    SDL_WaitEvent(&event);
+    
+    SDL_WaitEvent(&event);    
+        
     state = SDL_GetKeyboardState(NULL);
 
-    if (state[SDL_SCANCODE_UP] || state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_LEFT] || state[SDL_SCANCODE_RIGHT]){
-      int direction;
-      Tile *moveTile;
-      if(state[SDL_SCANCODE_UP]){
+    int direction;
+    Tile *moveTile;
+
+    if (state[SDL_SCANCODE_UP] || state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_LEFT] || state[SDL_SCANCODE_RIGHT]|| state[SDL_SCANCODE_W] || state[SDL_SCANCODE_A] || state[SDL_SCANCODE_S] || state[SDL_SCANCODE_D]) {
+      
+      if(state[SDL_SCANCODE_W] || state[SDL_SCANCODE_UP]){
 	direction = 1;
 	moveTile = (map[p1->ycoor - 1] + (p1->xcoor));
-      } else if(state[SDL_SCANCODE_DOWN]){
+      } else if(state[SDL_SCANCODE_S] || state[SDL_SCANCODE_DOWN]){
 	direction = 2;
 	moveTile = (map[p1->ycoor + 1] + (p1->xcoor));
-      } else if(state[SDL_SCANCODE_LEFT]){
+      } else if(state[SDL_SCANCODE_A] || state[SDL_SCANCODE_LEFT]){
 	direction = 3;
 	moveTile = (map[p1->ycoor] + (p1->xcoor - 1));
-      } else {
+      } else if(state[SDL_SCANCODE_D] || state[SDL_SCANCODE_RIGHT]) {
 	direction = 4;
 	moveTile = (map[p1->ycoor] + (p1->xcoor + 1));
       }
@@ -75,8 +83,8 @@ void handleInputs(){
       if(p1->direction != direction){
 	drawTurn(ren, p1, direction, cmap);
 	p1->direction = direction;
-      } else if(use == 1){
-	if(state[SDL_SCANCODE_RSHIFT])
+      } else if(use == 1) {
+	if(state[SDL_SCANCODE_RSHIFT] || state[SDL_SCANCODE_LSHIFT])
 	  drawMove(ren, cmap, p1, direction, 3);
 	else
 	  drawMove(ren,cmap, p1, direction, 2);
@@ -86,9 +94,9 @@ void handleInputs(){
 	  p1->ycoor++;
 	else if(direction == 3)
 	  p1->xcoor--;
-	else 
+	else if(direction == 4)
 	  p1->xcoor++;
-      } else if(use >= 4 && use <=8){
+      } else if(use >= 4 && use <=8) {
 	MapData *oldmap = cmap;
 	cmap = createMap(moveTile->change);
 	destroyMap(oldmap);
@@ -116,7 +124,7 @@ void handleInputs(){
 	}
 	strncpy(p1->mapName, moveTile->change, 25);
 	drawInitialFrame(ren, cmap, p1);
-      } else if(use == 9){
+      } else if(use == 9) {
 	if(strcmp(cmap->tempMap, "NULL") == 0){
 	  strncpy(p1->mapName, p1->prevMap, 25);
 	  p1->xcoor = p1->prevx;
@@ -132,12 +140,43 @@ void handleInputs(){
 	map = cmap->map;
 	drawInitialFrame(ren, cmap, p1);
       }
-    }
-    
-    if(state[SDL_SCANCODE_RETURN]){
+    } else if(state[SDL_SCANCODE_E]){
+      int interactTilex, interactTiley;
+      if(p1->direction == 1){
+	interactTilex = p1->xcoor;
+	interactTiley = p1->ycoor - 1;
+      } else if(p1->direction == 2){
+	interactTilex = p1->xcoor;
+	interactTiley = p1->ycoor + 1;
+      } else if(p1->direction == 3){
+	interactTilex = p1->xcoor - 1;
+	interactTiley = p1->ycoor;
+      } else if(p1->direction == 4) {
+	interactTilex = p1->xcoor + 1;
+	interactTiley = p1->ycoor;
+      }
+      int i;
+      for(i = 0; i < cmap->numNpcs; i++){
+	if(cmap->listNpcs[i]->xcoor == interactTilex && cmap->listNpcs[i]->ycoor == interactTiley){
+
+	  if(p1->direction == 1)
+	    cmap->listNpcs[i]->direction = 2;
+	  else if (p1->direction == 2)
+	    cmap->listNpcs[i]->direction = 1;
+	  else if (p1->direction == 3)
+	    cmap->listNpcs[i]->direction = 4;
+	  else 
+	    cmap->listNpcs[i]->direction = 3;
+	  drawInitialFrame(ren, cmap, p1);
+	}
+      }
+    } else if(event.type == SDL_QUIT) {
       savePlayer(p1);
       destroyMap(cmap);
       return;
+    } else if(event.type == SDL_WINDOWEVENT) {
+      resize(win, ren, cmap, p1);
     }
+    drawInitialFrame(ren, cmap, p1);
   }
 }
